@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS Sniper 🎮</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060610;
+    --surface: #0e0e1e;
+    --surface2: #161628;
+    --border: #1e1e3a;
+    --ps-blue: #0070d1;
+    --ps-light: #00a8ff;
+    --green: #00e676;
+    --red: #ff1744;
+    --text: #e8eeff;
+    --muted: #5a6a9a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 20% 0%, rgba(0,112,209,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(0,168,255,0.08) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .container { max-width: 680px; margin: 0 auto; padding: 2rem 1rem; position: relative; z-index: 1; }
+
+.header { text-align: center; margin-bottom: 2rem; }
+.ps-logo {
+font-family: ‘Orbitron’, sans-serif; font-size: 2rem; font-weight: 900;
+background: linear-gradient(135deg, var(–ps-blue), var(–ps-light));
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+margin-bottom: 6px;
+}
+.header-sub { color: var(–muted); font-size: 0.88rem; }
+
+.search-box {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; position: relative; overflow: hidden;
+}
+.search-box::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+background: linear-gradient(90deg, var(–ps-blue), var(–ps-light), var(–ps-blue));
+}
+.search-row { display: flex; gap: 10px; }
+.search-input {
+flex: 1; background: var(–surface2); border: 1px solid var(–border);
+border-radius: 12px; padding: 13px 16px; color: var(–text);
+font-family: ‘Cairo’, sans-serif; font-size: 1rem; outline: none; transition: border-color 0.2s;
+}
+.search-input:focus { border-color: var(–ps-blue); }
+.search-input::placeholder { color: var(–muted); }
+.search-btn {
+background: linear-gradient(135deg, var(–ps-blue), var(–ps-light));
+border: none; border-radius: 12px; padding: 13px 20px;
+color: white; font-family: ‘Cairo’, sans-serif; font-size: 1rem; font-weight: 700;
+cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,112,209,0.4); }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.quick-games { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1rem; }
+.quick-tag {
+padding: 5px 12px; background: var(–surface2); border: 1px solid var(–border);
+border-radius: 20px; font-size: 0.78rem; color: var(–muted); cursor: pointer; transition: all 0.2s;
+}
+.quick-tag:hover { border-color: var(–ps-light); color: var(–ps-light); }
+
+.loading {
+display: none; text-align: center; padding: 3rem;
+background: var(–surface); border: 1px solid var(–border); border-radius: 20px; margin-bottom: 1.5rem;
+}
+.loading.show { display: block; }
+.loading-icon { font-size: 3rem; animation: spin 1s linear infinite; display: inline-block; margin-bottom: 1rem; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.loading-text { color: var(–muted); font-size: 0.9rem; }
+
+.results { display: none; }
+.results.show { display: block; }
+
+.game-header {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 16px; padding: 1.2rem 1.5rem; margin-bottom: 1rem;
+display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+}
+.game-title { font-size: 1.2rem; font-weight: 900; }
+.best-deal {
+background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3);
+border-radius: 10px; padding: 6px 14px; font-size: 0.8rem; color: var(–green); font-weight: 700;
+}
+
+.prices-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
+
+.price-card {
+background: var(–surface); border: 1px solid var(–border);
+border-radius: 14px; padding: 1rem 1.2rem;
+display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+text-decoration: none; color: inherit;
+}
+.price-card:hover { border-color: var(–ps-blue); background: var(–surface2); transform: translateX(-3px); }
+.price-card.cheapest {
+border-color: rgba(0,230,118,0.4);
+background: linear-gradient(135deg, rgba(0,230,118,0.05), var(–surface));
+}
+.price-card.unavailable { opacity: 0.45; }
+
+.flag { font-size: 1.8rem; flex-shrink: 0; }
+.country-info { flex: 1; }
+.country-name { font-weight: 700; font-size: 0.9rem; }
+.store-link-text { font-size: 0.72rem; color: var(–muted); margin-top: 2px; }
+
+.price-area { text-align: left; }
+.price-main {
+font-family: ‘Orbitron’, sans-serif; font-size: 1.1rem; font-weight: 700; color: var(–ps-light);
+}
+.price-card.cheapest .price-main { color: var(–green); }
+.price-card.unavailable .price-main { color: var(–muted); font-family: ‘Cairo’, sans-serif; font-size: 0.85rem; }
+
+.badge { padding: 3px 10px; border-radius: 10px; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
+.badge.cheapest-badge { background: rgba(0,230,118,0.15); color: var(–green); }
+
+.tip-box {
+background: var(–surface); border: 1px solid rgba(0,168,255,0.2);
+border-radius: 14px; padding: 1rem 1.2rem; font-size: 0.85rem; color: var(–muted); line-height: 1.7;
+}
+.tip-box strong { color: var(–ps-light); }
+
+.error-box {
+display: none; background: rgba(255,23,68,0.05); border: 1px solid rgba(255,23,68,0.2);
+border-radius: 14px; padding: 1.5rem; text-align: center; color: var(–red); margin-bottom: 1.5rem;
+}
+.error-box.show { display: block; }
+</style>
+
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="ps-logo">🎮 PS SNIPER</div>
+    <div class="header-sub">أرخص سعر للعبة على PlayStation Store من كل دول العالم</div>
+  </div>
+
+  <div class="search-box">
+    <div class="search-row">
+      <input type="text" class="search-input" id="gameInput" placeholder="اكتب اسم اللعبة بالإنجليزي..."
+        onkeydown="if(event.key==='Enter') searchGame()">
+      <button class="search-btn" id="searchBtn" onclick="searchGame()">🎯 سنايب</button>
+    </div>
+    <div class="quick-games">
+      <span class="quick-tag" onclick="quickSearch('Spider-Man 2')">Spider-Man 2</span>
+      <span class="quick-tag" onclick="quickSearch('God of War Ragnarok')">God of War</span>
+      <span class="quick-tag" onclick="quickSearch('FIFA 25')">EA FC 25</span>
+      <span class="quick-tag" onclick="quickSearch('Elden Ring')">Elden Ring</span>
+      <span class="quick-tag" onclick="quickSearch('Call of Duty')">Call of Duty</span>
+      <span class="quick-tag" onclick="quickSearch('Hogwarts Legacy')">Hogwarts Legacy</span>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="loading-icon">🎮</div>
+    <div class="loading-text">جاري البحث في PS Store...</div>
+  </div>
+
+  <div class="error-box" id="errorBox">
+    <div style="font-size:2rem;margin-bottom:8px">😕</div>
+    <div id="errorMsg">حصل خطأ، حاول تاني</div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="game-header">
+      <div class="game-title" id="gameName"></div>
+      <div class="best-deal" id="bestDeal"></div>
+    </div>
+    <div class="prices-grid" id="pricesGrid"></div>
+    <div class="tip-box">
+      💡 <strong>نصيحة:</strong> عشان تشتري بسعر دولة تانية، محتاج تعمل حساب PS على المنطقة دي وتشحنه بـ gift card من نفس الدولة.
+    </div>
+  </div>
+</div>
+
+<script>
+  function quickSearch(name) {
+    document.getElementById('gameInput').value = name;
+    searchGame();
+  }
+
+  async function searchGame() {
+    const game = document.getElementById('gameInput').value.trim();
+    if (!game) return;
+
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('errorBox').classList.remove('show');
+    document.getElementById('searchBtn').disabled = true;
+
+    try {
+      const res = await fetch(`/api/prices?game=${encodeURIComponent(game)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'خطأ غير معروف');
+      }
+
+      displayResults(data);
+    } catch (err) {
+      document.getElementById('errorBox').classList.add('show');
+      document.getElementById('errorMsg').textContent = err.message || 'مش قادر يجيب الأسعار، حاول تاني';
+    } finally {
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('searchBtn').disabled = false;
+    }
+  }
+
+  function displayResults(data) {
+    document.getElementById('gameName').textContent = '🎮 ' + data.game;
+
+    const available = data.prices.filter(p => p.available);
+    if (available.length > 0) {
+      const cheapest = available.reduce((a, b) => a.price < b.price ? a : b);
+      document.getElementById('bestDeal').textContent = `✅ أرخص: ${cheapest.country} — ${cheapest.price}`;
+    }
+
+    const grid = document.getElementById('pricesGrid');
+    const sorted = [...data.prices].sort((a, b) => {
+      if (!a.available) return 1;
+      if (!b.available) return -1;
+      return 0;
+    });
+
+    let cheapestShown = false;
+    grid.innerHTML = sorted.map((p) => {
+      const isFirst = p.available && !cheapestShown;
+      if (isFirst) cheapestShown = true;
+      return `
+        <a class="price-card ${isFirst ? 'cheapest' : ''} ${!p.available ? 'unavailable' : ''}"
+           href="${p.storeUrl}" target="_blank" rel="noopener">
+          <span class="flag">${p.flag}</span>
+          <div class="country-info">
+            <div class="country-name">${p.country}</div>
+            <div class="store-link-text">PlayStation Store ↗</div>
+          </div>
+          ${isFirst ? '<span class="badge cheapest-badge">🏆 الأرخص</span>' : ''}
+          <div class="price-area">
+            <div class="price-main">${p.price}</div>
+          </div>
+        </a>`;
+    }).join('');
+
+    document.getElementById('results').classList.add('show');
+  }
+</script>
+
+</body>
+</html>
